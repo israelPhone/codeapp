@@ -8,7 +8,7 @@
 
 "Welcome Message" =
 "# Code App
-##### **v1.12.0 (2026 年 2 月)**
+##### **v1.12.1 (2026 年 3 月)**
 #### 開始
 [新しいファイル](https://thebaselab.com/code/newfile)
 [ファイルを開く](https://thebaselab.com/code/openfile)
@@ -22,7 +22,10 @@
 ";
 
 "Changelog.message" =
-"### 1.12.0 (Feburary 2026)
+"### 1.12.1 (2026 年 3 月)
+- SSH ディレクトリの不具合を修正
+
+### 1.12.0 (Feburary 2026)
 - マルチターミナルに対応
 - ターミナルの修飾キーに対応
 - @ThalesMMS の貢献に特別感謝

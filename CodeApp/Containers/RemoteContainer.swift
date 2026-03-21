@@ -176,7 +176,13 @@ struct RemoteContainer: View {
             continuation.resume(throwing: error)
         } else {
             DispatchQueue.main.async {
-                App.loadFolder(url: hostUrl)
+                App.notificationManager.showInformationMessage(
+                    "remote.connected")
+                App.terminalManager.setTerminalServiceProviderForActiveTerminal(
+                    App.workSpaceStorage.terminalServiceProvider)
+                if let newRootDirectory = URL(string: App.workSpaceStorage.currentDirectory.url) {
+                    App.loadFolder(url: newRootDirectory, resetEditorsAndTerminals: true)
+                }
             }
             continuation.resume(returning: ())
         }

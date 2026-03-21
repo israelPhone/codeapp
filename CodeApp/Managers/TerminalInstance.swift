@@ -37,6 +37,7 @@ class TerminalInstance: NSObject, WKScriptMessageHandler, WKNavigationDelegate, 
         didSet {
             if terminalServiceProvider != nil {
                 self.startInteractive()
+                self.syncTerminalSizeToServiceProvider()
             }
             if terminalServiceProvider == nil && oldValue != nil {
                 self.stopInteractive()
@@ -74,6 +75,19 @@ class TerminalInstance: NSObject, WKScriptMessageHandler, WKNavigationDelegate, 
         if isInteractive {
             isInteractive = false
             executeScript("stopInteractive()")
+        }
+    }
+
+    private func syncTerminalSizeToServiceProvider() {
+        guard isReady, let terminalServiceProvider else {
+            return
+        }
+
+        Task {
+            guard let size = await getTerminalSize() else {
+                return
+            }
+            terminalServiceProvider.setWindowsSize(cols: size.cols, rows: size.rows)
         }
     }
 
@@ -391,6 +405,7 @@ class TerminalInstance: NSObject, WKScriptMessageHandler, WKNavigationDelegate, 
             }
             configureCustomOptions()
             isReady = true
+            syncTerminalSizeToServiceProvider()
             NotificationCenter.default.post(name: .terminalDidInitialize, object: self)
         case "window.size.change":
             let cols = result["Cols"] as! Int
@@ -577,6 +592,29 @@ struct ModifierStates: Codable {
     var altGeneration: Int
 }
 
+struct TerminalSize: Codable {
+    var cols: Int
+    var rows: Int
+}
+
+// Terminal state methods
+
+extension TerminalInstance {
+    /// Asynchronously obtains the current terminal size from JavaScript.
+    func getTerminalSize() async -> TerminalSize? {
+        guard
+            let dict = try? await webView.evaluateJavaScript("getTerminalSize()")
+                as? [String: Any],
+            let jsonData = try? JSONSerialization.data(withJSONObject: dict),
+            let size = try? JSONDecoder().decode(TerminalSize.self, from: jsonData)
+        else {
+            return nil
+        }
+
+        return size
+    }
+}
+
 // Keyboard toolbar methods
 
 extension TerminalInstance {
@@ -625,6 +663,7 @@ extension TerminalInstance {
 
         return states
     }
+
 }
 
 extension Notification.Name {

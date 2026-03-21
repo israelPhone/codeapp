@@ -983,23 +983,17 @@ class MainApp: ObservableObject {
             self.terminalManager.resetAndSetNewRootDirectory(url: url)
         }
 
+        self.workSpaceStorage.updateDirectory(
+            name: url.lastPathComponent, url: url.absoluteString)
+
         let url = url.standardizedFileURL
         if url.isFileURL {
             // Local urls
             ios_setDirectoryURL(url)
-            if workSpaceStorage.remoteConnected && url.isFileURL {
+            if workSpaceStorage.remoteConnected {
                 workSpaceStorage.disconnect()
             }
-            self.workSpaceStorage.updateDirectory(
-                name: url.lastPathComponent, url: url.absoluteString)
             saveLocalURLToRecentFolders(url: url)
-        } else {
-            // Remote urls
-            notificationManager.showInformationMessage(
-                "remote.connected")
-            // Set terminal service provider for the active terminal
-            terminalManager.setTerminalServiceProviderForActiveTerminal(
-                workSpaceStorage.terminalServiceProvider)
         }
 
         loadRepository(url: url)

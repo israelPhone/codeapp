@@ -190,6 +190,13 @@
         };
       }
 
+      function getTerminalSize() {
+        return {
+          cols: term.cols,
+          rows: term.rows
+        };
+      }
+
       function shouldApplyModifierToCsi(final, params) {
         if (final >= "A" && final <= "D") {
           return true;

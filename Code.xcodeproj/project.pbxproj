@@ -631,9 +631,9 @@
 		947BBCF82C12F5AA00FFD0C5 /* TreeSitterYAMLRunestone in Frameworks */ = {isa = PBXBuildFile; productRef = 947BBCF72C12F5AA00FFD0C5 /* TreeSitterYAMLRunestone */; };
 		947BF349262453040015DAEB /* SearchManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 947BF348262453040015DAEB /* SearchManager.swift */; };
 		94801F93266FB5E400B29D80 /* TerminalInstance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94801F92266FB5E400B29D80 /* TerminalInstance.swift */; };
+		94801F95266FBC3500B29D80 /* ViewRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94801F94266FBC3500B29D80 /* ViewRepresentable.swift */; };
 		94801F97266FB5E500B29D80 /* TerminalManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94801F96266FB5E500B29D80 /* TerminalManager.swift */; };
 		94801F98266FB5E500B29D80 /* TerminalManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94801F96266FB5E500B29D80 /* TerminalManager.swift */; };
-		94801F95266FBC3500B29D80 /* ViewRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94801F94266FBC3500B29D80 /* ViewRepresentable.swift */; };
 		948488F92BE61684004D4A70 /* TerminalKeyboardToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 948488F82BE61684004D4A70 /* TerminalKeyboardToolbar.swift */; };
 		948488FA2BE61684004D4A70 /* TerminalKeyboardToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 948488F82BE61684004D4A70 /* TerminalKeyboardToolbar.swift */; };
 		9484BDD12B46FAEE003BCB8A /* injection.js in Resources */ = {isa = PBXBuildFile; fileRef = 9484BDD02B46FAEE003BCB8A /* injection.js */; };
@@ -1837,8 +1837,8 @@
 		947A9D8827D3C562007680C3 /* UIApplication+getSafeArea.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+getSafeArea.swift"; sourceTree = "<group>"; };
 		947BF348262453040015DAEB /* SearchManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchManager.swift; sourceTree = "<group>"; };
 		94801F92266FB5E400B29D80 /* TerminalInstance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalInstance.swift; sourceTree = "<group>"; };
-		94801F96266FB5E500B29D80 /* TerminalManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalManager.swift; sourceTree = "<group>"; };
 		94801F94266FBC3500B29D80 /* ViewRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewRepresentable.swift; sourceTree = "<group>"; };
+		94801F96266FB5E500B29D80 /* TerminalManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalManager.swift; sourceTree = "<group>"; };
 		948488F82BE61684004D4A70 /* TerminalKeyboardToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalKeyboardToolbar.swift; sourceTree = "<group>"; };
 		9484BDD02B46FAEE003BCB8A /* injection.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = injection.js; sourceTree = "<group>"; };
 		948A5FE82A87B09500303C12 /* NSError+init.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSError+init.swift"; sourceTree = "<group>"; };
@@ -4057,7 +4057,7 @@
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				MARKETING_VERSION = 1.12.0;
+				MARKETING_VERSION = 1.12.1;
 				OTHER_SWIFT_FLAGS = "-Xcc -Wno-incomplete-umbrella";
 				PRODUCT_BUNDLE_IDENTIFIER = "thebaselab.VS-Code";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4105,7 +4105,7 @@
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				MARKETING_VERSION = 1.12.0;
+				MARKETING_VERSION = 1.12.1;
 				OTHER_SWIFT_FLAGS = "-Xcc -Wno-incomplete-umbrella";
 				PRODUCT_BUNDLE_IDENTIFIER = "thebaselab.VS-Code";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4342,7 +4342,7 @@
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				MARKETING_VERSION = 1.12.0;
+				MARKETING_VERSION = 1.12.1;
 				OTHER_SWIFT_FLAGS = "-Xcc -Wno-incomplete-umbrella";
 				PRODUCT_BUNDLE_IDENTIFIER = "thebaselab.VS-Code";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4389,7 +4389,7 @@
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				MARKETING_VERSION = 1.12.0;
+				MARKETING_VERSION = 1.12.1;
 				OTHER_SWIFT_FLAGS = "-Xcc -Wno-incomplete-umbrella";
 				PRODUCT_BUNDLE_IDENTIFIER = "thebaselab.VS-Code";
 				PRODUCT_NAME = "$(TARGET_NAME)";
