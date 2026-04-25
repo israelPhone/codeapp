@@ -1,1 +1,35 @@
+name: Compilar Code App Firmada
+on:
+  workflow_dispatch:
 
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar Certificados
+        env:
+          P12_BASE64: ${{ secrets.IOS_CERT_P12_BASE64 }}
+          P12_PASSWORD: ${{ secrets.IOS_CERT_PASSWORD }}
+          PROVISION_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+        run: |
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          echo $P12_BASE64 | base64 --decode > cert.p12
+          echo $PROVISION_BASE64 | base64 --decode > profile.mobileprovision
+          security create-keychain -p "" build.keychain
+          security import cert.p12 -k build.keychain -P "$P12_PASSWORD" -T /usr/bin/codesign
+          security list-keychains -d user -s build.keychain
+          cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
+
+      - name: Compilar y Firmar
+        run: |
+          # Aquí es donde la máquina de GitHub hace el trabajo duro
+          xcodebuild archive -project CodeApp.xcodeproj -scheme CodeApp -archivePath CodeApp.xcarchive
+          xcodebuild -exportArchive -archivePath CodeApp.xcarchive -exportPath output -exportOptionsPlist ExportOptions.plist
+
+      - name: Subir IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: CodeApp-Firmada
+          path: output/*.ipa
