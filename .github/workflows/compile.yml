@@ -1,4 +1,4 @@
-name: Compilar Code App Firmada
+name: Compilar IPA para KSign
 on:
   workflow_dispatch:
 
@@ -9,54 +9,34 @@ jobs:
       - name: Checkout del código
         uses: actions/checkout@v4
 
-      - name: Instalar Certificados de Signulous
-        env:
-          P12_BASE64: ${{ secrets.IOS_CERT_P12_BASE64 }}
-          PROVISION_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
-          # Usamos la pass de Signulous directamente para evitar errores de lectura
-          P12_PASSWORD: "123456"
+      - name: Instalar Dependencias
         run: |
-          # 1. Crear carpetas necesarias
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          
-          # 2. Decodificar archivos limpiando espacios y saltos de línea basura
-          echo "${P12_BASE64}" | tr -d '[:space:]' | base64 --decode > cert.p12
-          echo "${PROVISION_BASE64}" | tr -d '[:space:]' | base64 --decode > profile.mobileprovision
-          
-          # 3. Crear y configurar llavero temporal (Keychains)
-          security create-keychain -p "build" build.keychain
-          security default-keychain -s build.keychain
-          security unlock-keychain -p "build" build.keychain
-          security set-keychain-settings -t 3600 -u build.keychain
-          
-          # 4. Importar el certificado P12
-          security import cert.p12 -k build.keychain -P "$P12_PASSWORD" -A -T /usr/bin/codesign
-          
-          # 5. Autorizar a la herramienta de firmado (Crucial para que no se quede colgado)
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "build" build.keychain
-          
-          # 6. Instalar perfil de provisión
-          cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
+          # Intentamos instalar dependencias de Node
+          npm install --force
+          # Si existe carpeta de Pods, la preparamos
+          if [ -d "Pods" ]; then echo "Pods ya presentes"; else if [ -f "Podfile" ]; then pod install; fi; fi
 
-      - name: Instalar Dependencias (Node & Pods)
+      - name: Compilar App (Sin Firmar)
         run: |
-          npm install
-          # Si el proyecto tiene pods, se instalan aquí, si no, saltará al siguiente paso
-          if [ -f "Podfile" ]; then pod install; fi
+          # Usamos el nombre que sale en tu captura: Code.xcodeproj
+          xcodebuild archive \
+            -project Code.xcodeproj \
+            -scheme Code \
+            -archivePath CodeApp.xcarchive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
 
-      - name: Compilar y Generar IPA
+      - name: Crear IPA para KSign
         run: |
-          # Limpiar compilaciones previas
-          xcodebuild clean -project CodeApp.xcodeproj -scheme CodeApp
-          
-          # Crear archivo
-          xcodebuild archive -project CodeApp.xcodeproj -scheme CodeApp -archivePath CodeApp.xcarchive -allowProvisioningUpdates
-          
-          # Exportar el IPA (Requiere que tengas el archivo ExportOptions.plist en la raíz)
-          xcodebuild -exportArchive -archivePath CodeApp.xcarchive -exportPath output -exportOptionsPlist ExportOptions.plist
+          mkdir -p Payload
+          cp -R CodeApp.xcarchive/Products/Applications/*.app Payload/
+          zip -r CodeApp_para_KSign.ipa Payload
+          mkdir output
+          mv CodeApp_para_KSign.ipa output/
 
-      - name: Subir Resultado
+      - name: Descargar mi IPA
         uses: actions/upload-artifact@v4
         with:
-          name: CodeApp-Firmada-Signulous
+          name: App-Lista-Para-KSign
           path: output/*.ipa
