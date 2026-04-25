@@ -1,38 +1,17 @@
-name: Compilar IPA para KSign
-on:
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout del código
-        uses: actions/checkout@v4
-
-      - name: Listar Schemes (Para saber el nombre real)
-        run: xcodebuild -list -project Code.xcodeproj
+      - name: Detectar y Listar Schemes
+        run: |
+          xcodebuild -list -project Code.xcodeproj | tee schemes.txt
+          # Extrae el primer nombre debajo de "Schemes:"
+          FIRST_SCHEME=$(sed -n '/Schemes:/{n;p;}' schemes.txt | xargs)
+          echo "SCHEME_NAME=$FIRST_SCHEME" >> $GITHUB_ENV
+          echo "El scheme detectado es: $FIRST_SCHEME"
 
       - name: Compilar App (Sin Firmar)
         run: |
-          # Intentamos con CodeApp, que es el más probable
           xcodebuild archive \
             -project Code.xcodeproj \
-            -scheme CodeApp \
+            -scheme "${{ env.SCHEME_NAME }}" \
             -archivePath CodeApp.xcarchive \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY=""
-
-      - name: Crear IPA para KSign
-        run: |
-          mkdir -p Payload
-          cp -R CodeApp.xcarchive/Products/Applications/*.app Payload/
-          zip -r CodeApp_para_KSign.ipa Payload
-          mkdir output
-          mv CodeApp_para_KSign.ipa output/
-
-      - name: Descargar mi IPA
-        uses: actions/upload-artifact@v4
-        with:
-          name: App-Lista-Para-KSign
-          path: output/*.ipa
