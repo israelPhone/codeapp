@@ -9,12 +9,15 @@ jobs:
       - name: Checkout del código
         uses: actions/checkout@v4
 
+      - name: Listar Schemes (Para saber el nombre real)
+        run: xcodebuild -list -project Code.xcodeproj
+
       - name: Compilar App (Sin Firmar)
         run: |
-          # Solo compilamos, sin buscar archivos de Node que no existen
+          # Intentamos con CodeApp, que es el más probable
           xcodebuild archive \
             -project Code.xcodeproj \
-            -scheme Code \
+            -scheme CodeApp \
             -archivePath CodeApp.xcarchive \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
@@ -23,7 +26,6 @@ jobs:
       - name: Crear IPA para KSign
         run: |
           mkdir -p Payload
-          # Buscamos la app compilada y la metemos en el Payload
           cp -R CodeApp.xcarchive/Products/Applications/*.app Payload/
           zip -r CodeApp_para_KSign.ipa Payload
           mkdir output
