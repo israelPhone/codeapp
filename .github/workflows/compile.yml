@@ -6,30 +6,57 @@ jobs:
   build:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout del código
+        uses: actions/checkout@v4
 
-      - name: Instalar Certificados
+      - name: Instalar Certificados de Signulous
         env:
           P12_BASE64: ${{ secrets.IOS_CERT_P12_BASE64 }}
-          P12_PASSWORD: ${{ secrets.IOS_CERT_PASSWORD }}
           PROVISION_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+          # Usamos la pass de Signulous directamente para evitar errores de lectura
+          P12_PASSWORD: "123456"
         run: |
+          # 1. Crear carpetas necesarias
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          echo $P12_BASE64 | base64 --decode > cert.p12
-          echo $PROVISION_BASE64 | base64 --decode > profile.mobileprovision
-          security create-keychain -p "" build.keychain
-          security import cert.p12 -k build.keychain -P "$P12_PASSWORD" -T /usr/bin/codesign
-          security list-keychains -d user -s build.keychain
+          
+          # 2. Decodificar archivos limpiando espacios y saltos de línea basura
+          echo "${P12_BASE64}" | tr -d '[:space:]' | base64 --decode > cert.p12
+          echo "${PROVISION_BASE64}" | tr -d '[:space:]' | base64 --decode > profile.mobileprovision
+          
+          # 3. Crear y configurar llavero temporal (Keychains)
+          security create-keychain -p "build" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "build" build.keychain
+          security set-keychain-settings -t 3600 -u build.keychain
+          
+          # 4. Importar el certificado P12
+          security import cert.p12 -k build.keychain -P "$P12_PASSWORD" -A -T /usr/bin/codesign
+          
+          # 5. Autorizar a la herramienta de firmado (Crucial para que no se quede colgado)
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "build" build.keychain
+          
+          # 6. Instalar perfil de provisión
           cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
 
-      - name: Compilar y Firmar
+      - name: Instalar Dependencias (Node & Pods)
         run: |
-          # Aquí es donde la máquina de GitHub hace el trabajo duro
-          xcodebuild archive -project CodeApp.xcodeproj -scheme CodeApp -archivePath CodeApp.xcarchive
+          npm install
+          # Si el proyecto tiene pods, se instalan aquí, si no, saltará al siguiente paso
+          if [ -f "Podfile" ]; then pod install; fi
+
+      - name: Compilar y Generar IPA
+        run: |
+          # Limpiar compilaciones previas
+          xcodebuild clean -project CodeApp.xcodeproj -scheme CodeApp
+          
+          # Crear archivo
+          xcodebuild archive -project CodeApp.xcodeproj -scheme CodeApp -archivePath CodeApp.xcarchive -allowProvisioningUpdates
+          
+          # Exportar el IPA (Requiere que tengas el archivo ExportOptions.plist en la raíz)
           xcodebuild -exportArchive -archivePath CodeApp.xcarchive -exportPath output -exportOptionsPlist ExportOptions.plist
 
-      - name: Subir IPA
+      - name: Subir Resultado
         uses: actions/upload-artifact@v4
         with:
-          name: CodeApp-Firmada
+          name: CodeApp-Firmada-Signulous
           path: output/*.ipa
