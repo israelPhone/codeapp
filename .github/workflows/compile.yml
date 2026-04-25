@@ -9,16 +9,9 @@ jobs:
       - name: Checkout del código
         uses: actions/checkout@v4
 
-      - name: Instalar Dependencias
-        run: |
-          # Intentamos instalar dependencias de Node
-          npm install --force
-          # Si existe carpeta de Pods, la preparamos
-          if [ -d "Pods" ]; then echo "Pods ya presentes"; else if [ -f "Podfile" ]; then pod install; fi; fi
-
       - name: Compilar App (Sin Firmar)
         run: |
-          # Usamos el nombre que sale en tu captura: Code.xcodeproj
+          # Solo compilamos, sin buscar archivos de Node que no existen
           xcodebuild archive \
             -project Code.xcodeproj \
             -scheme Code \
@@ -30,6 +23,7 @@ jobs:
       - name: Crear IPA para KSign
         run: |
           mkdir -p Payload
+          # Buscamos la app compilada y la metemos en el Payload
           cp -R CodeApp.xcarchive/Products/Applications/*.app Payload/
           zip -r CodeApp_para_KSign.ipa Payload
           mkdir output
